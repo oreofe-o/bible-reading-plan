@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Bible Reading Plan</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>Oreofe's Bible Reading Plan</h1>
+            <p class="subtitle">Complete the Bible in 2026!</p>
+        </header>
+
+        <!-- Sticky Progress Dashboard -->
+        <div class="progress-card sticky" id="stat-card">
+            <div class="progress-header">
+                <span class="progress-title">Overall Progress</span>
+                <span class="progress-stats" id="stats-text">0 / 365 Days</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <!-- Main List -->
+        <main id="plan-container" class="day-list">
+            <div class="loading">Generating plan...</div>
+        </main>
+
+        <!-- Book Checklist Section (Bottom) -->
+        <div style="margin-top: 40px;">
+            <h2 style="font-size: 18px; margin-bottom: 16px;">Books Completed</h2>
+            <div id="book-checklist" class="day-list" style="opacity: 0.8;">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
