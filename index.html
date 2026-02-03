@@ -1,53 +1,405 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Bible Reading Plan</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Chronological Bible Reading Plan (2026)</title>
+    <style>
+        :root {
+            --page-w: 210mm;
+            /* A4 */
+            --page-h: 297mm;
+            --pad: 12mm;
+            --gap: 6mm;
+            --border: #c9c9c9;
+            --text: #111;
+            --muted: #555;
+        }
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        * {
+            box-sizing: border-box;
+        }
 
-    <link rel="stylesheet" href="styles.css">
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text);
+            background: #f6f6f6;
+        }
+
+        header {
+            padding: 20px 16px 10px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            margin: 0 0 6px;
+            font-size: 20px;
+        }
+
+        header p {
+            margin: 4px 0;
+            color: var(--muted);
+            line-height: 1.35;
+            font-size: 13px;
+        }
+
+        /* Printable "pages" */
+        .pages {
+            max-width: 1100px;
+            margin: 0 auto 28px;
+            padding: 0 16px 28px;
+            display: grid;
+            gap: 18px;
+        }
+
+        .page {
+            width: var(--page-w);
+            min-height: var(--page-h);
+            background: #fff;
+            margin: 0 auto;
+            padding: var(--pad);
+            box-shadow: 0 1px 10px rgba(0, 0, 0, .08);
+        }
+
+        /* 3 columns x 10 rows grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--gap);
+        }
+
+        .cell {
+            border: 1px solid var(--border);
+            padding: 6px 7px;
+            font-size: 11px;
+            line-height: 1.25;
+            min-height: 66px;
+            break-inside: avoid;
+        }
+
+        .date {
+            display: flex;
+            gap: 6px;
+            align-items: baseline;
+            margin-bottom: 3px;
+            font-weight: 700;
+        }
+
+        .box {
+            font-weight: 400;
+            margin-right: 2px;
+        }
+
+        .lines {
+            margin: 0;
+            padding-left: 14px;
+        }
+
+        .lines li {
+            margin: 0;
+        }
+
+        .rest {
+            font-weight: 700;
+        }
+
+        /* Checklist */
+        .checklist {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px 14px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .check-item {
+            border: 1px solid var(--border);
+            padding: 6px 8px;
+            display: flex;
+            gap: 8px;
+            align-items: baseline;
+        }
+
+        /* Print */
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            header,
+            .hint {
+                display: none;
+            }
+
+            .pages {
+                padding: 0;
+                margin: 0;
+                gap: 0;
+            }
+
+            .page {
+                box-shadow: none;
+                width: auto;
+                min-height: auto;
+                padding: 12mm;
+                page-break-after: always;
+            }
+
+            .page:last-child {
+                page-break-after: auto;
+            }
+        }
+
+        /* Small helper bar */
+        .hint {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 16px 12px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        button {
+            border: 1px solid var(--border);
+            background: #fff;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        button:hover {
+            background: #fafafa;
+        }
+    </style>
 </head>
 
 <body>
+    <header>
+        <h1>Chronological Bible Reading Plan (2026)</h1>
+        <p><b>Start:</b> Mon Jan 5th, 2026 &nbsp;•&nbsp; <b>End:</b> Thu Dec 24th, 2026</p>
+        <p><b>Daily:</b> 3 chronological chapters + 1 wisdom chapter</p>
+        <p><b>Wisdom order:</b> Psalms 1–150 → Proverbs 1–31 → repeat</p>
+    </header>
 
-    <div class="app-container">
-        <header>
-            <h1>Oreofe's Bible Reading Plan</h1>
-            <p class="subtitle">Complete the Bible in 2026!</p>
-        </header>
-
-        <!-- Sticky Progress Dashboard -->
-        <div class="progress-card sticky" id="stat-card">
-            <div class="progress-header">
-                <span class="progress-title">Overall Progress</span>
-                <span class="progress-stats" id="stats-text">0 / 365 Days</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-        </div>
-
-        <!-- Main List -->
-        <main id="plan-container" class="day-list">
-            <div class="loading">Generating plan...</div>
-        </main>
-
-        <!-- Book Checklist Section (Bottom) -->
-        <div style="margin-top: 40px;">
-            <h2 style="font-size: 18px; margin-bottom: 16px;">Books Completed</h2>
-            <div id="book-checklist" class="day-list" style="opacity: 0.8;">
-                <!-- Populated by JS -->
-            </div>
-        </div>
+    <div class="hint">
+        <button onclick="window.print()">Print (A4)</button>
+        <span style="margin-left:10px;">Layout: 3 columns × 10 rows per page. Dates increase down each column first,
+            then move right.</span>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <main class="pages" id="pages"></main>
+
+    <script>
+        // ---- Utilities ----
+        const ordinal = (n) => {
+            const mod100 = n % 100;
+            if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+            const mod10 = n % 10;
+            if (mod10 === 1) return `${n}st`;
+            if (mod10 === 2) return `${n}nd`;
+            if (mod10 === 3) return `${n}rd`;
+            return `${n}th`;
+        };
+
+        const fmtDate = (d) => {
+            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return `${days[d.getDay()]} ${months[d.getMonth()]} ${ordinal(d.getDate())}`;
+        };
+
+        // ---- Plan configuration ----
+        const start = new Date(2026, 0, 5);   // Jan is 0
+        const end = new Date(2026, 11, 24); // Dec 24
+        const rowsPerCol = 10;
+        const cols = 3;
+        const pageCapacity = rowsPerCol * cols;
+
+        // Chronological sequence (Psalms/Proverbs handled separately)
+        // NOTE: This matches the PDF you requested: Job after Gen 11, prophets interleaved, full 66-book coverage in main stream.
+        const seq = [
+            ["Genesis", 1, 11],
+            ["Job", 1, 42],
+            ["Genesis", 12, 50],
+            ["Exodus", 1, 40],
+            ["Leviticus", 1, 27],
+            ["Numbers", 1, 36],
+            ["Deuteronomy", 1, 34],
+            ["Joshua", 1, 24],
+            ["Judges", 1, 21],
+            ["Ruth", 1, 4],
+            ["1 Samuel", 1, 31],
+            ["2 Samuel", 1, 24],
+            ["1 Chronicles", 1, 29],
+            ["1 Kings", 1, 11],
+            ["Ecclesiastes", 1, 12],
+            ["Song of Songs", 1, 8],
+            ["1 Kings", 12, 22],
+            ["2 Kings", 1, 25],
+            ["2 Chronicles", 1, 36],
+            ["Jonah", 1, 4],
+            ["Amos", 1, 9],
+            ["Hosea", 1, 14],
+            ["Micah", 1, 7],
+            ["Isaiah", 1, 66],
+            ["Nahum", 1, 3],
+            ["Zephaniah", 1, 3],
+            ["Habakkuk", 1, 3],
+            ["Joel", 1, 3],
+            ["Obadiah", 1, 1],
+            ["Jeremiah", 1, 52],
+            ["Lamentations", 1, 5],
+            ["Ezekiel", 1, 48],
+            ["Daniel", 1, 12],
+            ["Ezra", 1, 10],
+            ["Nehemiah", 1, 13],
+            ["Esther", 1, 10],
+            ["Haggai", 1, 2],
+            ["Zechariah", 1, 14],
+            ["Malachi", 1, 4],
+            ["Matthew", 1, 28],
+            ["Mark", 1, 16],
+            ["Luke", 1, 24],
+            ["John", 1, 21],
+            ["Acts", 1, 28],
+            ["Galatians", 1, 6],
+            ["1 Thessalonians", 1, 5],
+            ["2 Thessalonians", 1, 3],
+            ["1 Corinthians", 1, 16],
+            ["2 Corinthians", 1, 13],
+            ["Romans", 1, 16],
+            ["Ephesians", 1, 6],
+            ["Philippians", 1, 4],
+            ["Colossians", 1, 4],
+            ["Philemon", 1, 1],
+            ["1 Timothy", 1, 6],
+            ["Titus", 1, 3],
+            ["2 Timothy", 1, 4],
+            ["Hebrews", 1, 13],
+            ["James", 1, 5],
+            ["1 Peter", 1, 5],
+            ["2 Peter", 1, 3],
+            ["1 John", 1, 5],
+            ["2 John", 1, 1],
+            ["3 John", 1, 1],
+            ["Jude", 1, 1],
+            ["Revelation", 1, 22],
+        ];
+
+        // Build main chapter stream
+        const main = [];
+        for (const [book, s, e] of seq) {
+            for (let ch = s; ch <= e; ch++) main.push(`${book} ${ch}`);
+        }
+
+        // Days available (inclusive)
+        const totalDays = Math.floor((end - start) / (24 * 3600 * 1000)) + 1;
+
+        // Reading days needed for 3 chapters/day
+        const readingDaysNeeded = Math.ceil(main.length / 3);
+
+        // Remaining days become rest/catch-up at the tail
+        const restDays = Math.max(0, totalDays - readingDaysNeeded);
+
+        // Wisdom stream: Psalms 1-150 then Proverbs 1-31 then repeat
+        const wisdom = [];
+        while (wisdom.length < totalDays) {
+            for (let i = 1; i <= 150; i++) wisdom.push(`Psalm ${i}`);
+            for (let i = 1; i <= 31; i++) wisdom.push(`Proverbs ${i}`);
+        }
+
+        // Build day entries
+        const entries = [];
+        let ptr = 0;
+        for (let day = 0; day < totalDays; day++) {
+            const d = new Date(start.getTime() + day * 24 * 3600 * 1000);
+            const lines = [];
+            if (day < readingDaysNeeded) {
+                for (let k = 0; k < 3 && ptr < main.length; k++, ptr++) lines.push(main[ptr]);
+            } else {
+                lines.push("<span class='rest'>Rest / Catch-up</span>");
+            }
+            lines.push(wisdom[day]); // 1 wisdom chapter/day
+            entries.push({ date: d, lines });
+        }
+
+        // Book checklist (in plan order) — includes Psalms/Proverbs daily tracks
+        const checklistBooks = ["Psalms (daily)", "Proverbs (daily)"];
+        const seen = new Set(checklistBooks);
+        for (const [book] of seq) {
+            if (!seen.has(book)) {
+                checklistBooks.push(book);
+                seen.add(book);
+            }
+        }
+
+        // ---- Render ----
+        const pagesEl = document.getElementById("pages");
+
+        // Page 1 checklist
+        const checklistPage = document.createElement("section");
+        checklistPage.className = "page";
+        checklistPage.innerHTML = `
+      <h2 style="margin:0 0 6px;font-size:16px;">Book Checklist</h2>
+      <div style="color:var(--muted);font-size:12px;margin-bottom:10px;">
+        Cross off each book as you finish it (order matches the plan).
+      </div>
+      <div class="checklist">
+        ${checklistBooks.map(b => `
+          <div class="check-item"><span>☐</span><span>${b}</span></div>
+        `).join("")}
+      </div>
+    `;
+        pagesEl.appendChild(checklistPage);
+
+        // Daily pages (3 cols x 10 rows, vertical-first)
+        let idx = 0;
+        while (idx < entries.length) {
+            const pageChunk = entries.slice(idx, idx + pageCapacity);
+            idx += pageCapacity;
+
+            // Vertical-first columns: first 10 items fill col1 top->bottom, next 10 col2, next 10 col3
+            const columns = [];
+            for (let c = 0; c < cols; c++) {
+                columns.push(pageChunk.slice(c * rowsPerCol, (c + 1) * rowsPerCol));
+            }
+
+            const page = document.createElement("section");
+            page.className = "page";
+
+            // Build a 10-row grid by iterating rows and columns (so HTML matches the planner flow)
+            const grid = document.createElement("div");
+            grid.className = "grid";
+
+            for (let r = 0; r < rowsPerCol; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const entry = columns[c][r];
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+
+                    if (!entry) {
+                        cell.innerHTML = "";
+                    } else {
+                        const dateStr = fmtDate(entry.date);
+                        cell.innerHTML = `
+              <div class="date"><span class="box">☐</span><span>${dateStr}</span></div>
+              <ul class="lines">
+                ${entry.lines.map(line => `<li>${line}</li>`).join("")}
+              </ul>
+            `;
+                    }
+
+                    grid.appendChild(cell);
+                }
+            }
+
+            page.appendChild(grid);
+            pagesEl.appendChild(page);
+        }
+    </script>
 </body>
 
 </html>
