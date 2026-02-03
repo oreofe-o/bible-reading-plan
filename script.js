@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBeJCtncp2ePYPwdQjWmD8tognJIiUnl40",
@@ -13,9 +14,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-// Data Config
-const DOC_ID = "bible_progress/user_data";
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
 // Reading Plan Configuration (Same logic as plan.html)
 const start = new Date(2026, 0, 5); // Jan 5th
@@ -51,39 +51,110 @@ class BibleApp {
             completedItems: {}
         };
         this.entries = [];
+        this.user = null; // Current logged in user
+        this.unsubscribe = null; // Firestore listener un-subscriber
+
         this.init();
     }
 
     init() {
         this.generatePlan();
-        this.render();
+        this.render(); // Render empty state first
         this.renderBooks();
+        this.renderAuthUI();
 
-        // Listen to Firebase Realtime Updates
-        try {
-            const docRef = doc(db, DOC_ID);
-            onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (!data.completedItems) data.completedItems = {};
-                    this.state = data;
-                    console.log("Synced from cloud");
-                    this.updateUI();
-                } else {
-                    console.log("No cloud data found, using empty state");
-                }
-            }, (error) => {
-                console.error("Firebase Error:", error);
-            });
-        } catch (e) {
-            console.error("Init Error:", e);
+        // Listen for Auth Changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                this.user = user;
+                this.renderAuthUI();
+                this.syncData(user.uid);
+            } else {
+                this.user = null;
+                this.renderAuthUI();
+                // Clear state on logout
+                this.state = { completedDays: [], completedBooks: [], completedItems: {} };
+                if (this.unsubscribe) this.unsubscribe();
+                this.updateUI();
+            }
+        });
+    }
+
+    renderAuthUI() {
+        // Inject Auth Button into Header if not exists
+        let authContainer = document.getElementById('auth-container');
+        if (!authContainer) {
+            const header = document.querySelector('header');
+            authContainer = document.createElement('div');
+            authContainer.id = 'auth-container';
+            authContainer.style.marginTop = '10px';
+            authContainer.style.display = 'flex';
+            authContainer.style.alignItems = 'center';
+            authContainer.style.gap = '10px';
+            header.appendChild(authContainer);
+        }
+
+        authContainer.innerHTML = '';
+
+        if (this.user) {
+            const span = document.createElement('span');
+            span.textContent = `Signed in as ${this.user.email}`;
+            span.style.fontSize = '13px';
+            span.style.color = 'var(--muted)';
+
+            const btn = document.createElement('button');
+            btn.textContent = 'Sign Out';
+            btn.onclick = () => signOut(auth);
+            
+            authContainer.appendChild(span);
+            authContainer.appendChild(btn);
+        } else {
+            const btn = document.createElement('button');
+            btn.textContent = 'Sign In with Google to Save Progress';
+            btn.style.backgroundColor = '#4285F4';
+            btn.style.color = 'white';
+            btn.style.fontWeight = 'bold';
+            btn.onclick = () => {
+                signInWithPopup(auth, provider).catch((error) => {
+                    console.error("Auth Error:", error);
+                    if (error.code === 'auth/unauthorized-domain') {
+                        alert("Login failed: This domain is not authorized. Please visit the official site.");
+                    } else {
+                        alert("Login failed: " + error.message);
+                    }
+                });
+            };
+            authContainer.appendChild(btn);
         }
     }
 
+    syncData(uid) {
+        const docRef = doc(db, "bible_progress", uid);
+        
+        // Realtime Listener
+        this.unsubscribe = onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (!data.completedItems) data.completedItems = {};
+                this.state = data;
+                console.log("Synced from cloud");
+                this.updateUI();
+            } else {
+                console.log("New user, creating empty doc");
+                // Optional: Write initial state immediately or wait for first interaction
+                this.saveState(); 
+            }
+        }, (error) => {
+            console.error("Firestore Error:", error);
+        });
+    }
+
     async saveState() {
-        // Save to Firebase
+        if (!this.user) return; // Don't save if not logged in
+
         try {
-            await setDoc(doc(db, DOC_ID), this.state);
+            const docRef = doc(db, "bible_progress", this.user.uid);
+            await setDoc(docRef, this.state, { merge: true });
         } catch (e) {
             console.error("Save failed:", e);
         }
@@ -97,6 +168,11 @@ class BibleApp {
     }
 
     toggleItem(dayIndex, itemIndex) {
+        if (!this.user) {
+            alert("Please sign in to save your progress!");
+            return;
+        }
+
         const key = `d${dayIndex}_i${itemIndex}`;
         const isDone = !!this.state.completedItems[key];
 
@@ -120,6 +196,11 @@ class BibleApp {
     }
 
     toggleDay(dayIndex) {
+        if (!this.user) {
+            alert("Please sign in to save your progress!");
+            return;
+        }
+
         const dayIdxInArr = this.state.completedDays.indexOf(dayIndex);
         const isCurrentlyDone = dayIdxInArr > -1;
         const entry = this.entries[dayIndex];
@@ -140,6 +221,11 @@ class BibleApp {
     }
 
     toggleBook(bookName) {
+        if (!this.user) {
+            alert("Please sign in to save your progress!");
+            return;
+        }
+
         const idx = this.state.completedBooks.indexOf(bookName);
         if (idx > -1) {
             this.state.completedBooks.splice(idx, 1);
@@ -157,8 +243,7 @@ class BibleApp {
 
         const totalDays = Math.floor((end - start) / (24 * 3600 * 1000)) + 1;
         const readingDaysNeeded = Math.ceil(main.length / 3);
-        const restDays = Math.max(0, totalDays - readingDaysNeeded);
-
+        
         const wisdom = [];
         while (wisdom.length < totalDays) {
             for (let i = 1; i <= 150; i++) wisdom.push(`Psalm ${i}`);
@@ -184,8 +269,11 @@ class BibleApp {
         const total = this.entries.length;
         const pct = Math.round((count / total) * 100);
 
-        document.getElementById('stats-text').textContent = `${count} / ${total} Days (${pct}%)`;
-        document.getElementById('progress-fill').style.width = `${pct}%`;
+        const statsText = document.getElementById('stats-text');
+        if (statsText) statsText.textContent = `${count} / ${total} Days (${pct}%)`;
+        
+        const progressFill = document.getElementById('progress-fill');
+        if (progressFill) progressFill.style.width = `${pct}%`;
     }
 
     fmtDate(d) {
@@ -201,6 +289,7 @@ class BibleApp {
 
     render() {
         const container = document.getElementById('plan-container');
+        if (!container) return;
         container.innerHTML = '';
 
         this.entries.forEach(entry => {
