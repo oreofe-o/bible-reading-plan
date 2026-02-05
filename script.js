@@ -107,16 +107,17 @@ class BibleApp {
         authContainer.innerHTML = '';
 
         if (this.user) {
-            // Debug: log available user data
-            console.log("User data:", {
-                displayName: this.user.displayName,
-                email: this.user.email,
-                photoURL: this.user.photoURL,
-                uid: this.user.uid
-            });
-
             const span = document.createElement('span');
-            const displayName = this.user.displayName || this.user.email.split('@')[0];
+            
+            // Get a friendly name: Display Name > First part of email > "User"
+            let displayName = this.user.displayName;
+            if (!displayName && this.user.email) {
+                const namePart = this.user.email.split('@')[0];
+                // Capitalize first letter
+                displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+            }
+            if (!displayName) displayName = "User";
+
             span.textContent = `Signed in as ${displayName}`;
             span.style.fontSize = '13px';
             span.style.color = 'var(--muted)';
