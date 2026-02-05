@@ -64,10 +64,10 @@ class BibleApp {
         this.renderBooks();
         this.renderAuthUI();
 
-        // Handle redirect result (after sign-in redirect)
+      // Handle redirect result (after sign-in redirect)
         getRedirectResult(auth).then((result) => {
             if (result) {
-                console.log("Sign-in successful via redirect");
+                console.log("Sign-in successful via redirect:", result);
             }
         }).catch((error) => {
             console.error("Redirect sign-in error:", error);
@@ -79,6 +79,7 @@ class BibleApp {
                 this.user = user;
                 this.renderAuthUI();
                 this.syncData(user.uid);
+                console.log("onAuthStateChanged user:", user);
             } else {
                 this.user = null;
                 this.renderAuthUI();
