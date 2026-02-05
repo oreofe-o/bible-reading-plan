@@ -1,11 +1,22 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-// import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+// import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBeJCtncp2ePYPwdQjWmD8tognJIiUnl40",
     authDomain: "otf-bible-2026.firebaseapp.com",
+    projectId: "otf-bible-2026",
+    storageBucket: "otf-bible-2026.firebasestorage.app",
+    messagingSenderId: "764497402440",
+    appId: "1:764497402440:web:b9517a6120aa3105c0967d"
+};
+
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBeJCtncp2ePYPwdQjWmD8tognJIiUnl40",
+    // authDomain: "otf-bible-2026.firebaseapp.com",
+    authDomain: "luxury-gaufre-48f987.netlify.app",
     projectId: "otf-bible-2026",
     storageBucket: "otf-bible-2026.firebasestorage.app",
     messagingSenderId: "764497402440",
@@ -64,22 +75,12 @@ class BibleApp {
         this.renderBooks();
         this.renderAuthUI();
 
-      // Handle redirect result (after sign-in redirect)
-        getRedirectResult(auth).then((result) => {
-            if (result) {
-                console.log("Sign-in successful via redirect:", result);
-            }
-        }).catch((error) => {
-            console.error("Redirect sign-in error:", error);
-        });
-
         // Listen for Auth Changes
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 this.user = user;
                 this.renderAuthUI();
                 this.syncData(user.uid);
-                console.log("onAuthStateChanged user:", user);
             } else {
                 this.user = null;
                 this.renderAuthUI();
@@ -109,7 +110,7 @@ class BibleApp {
 
         if (this.user) {
             const span = document.createElement('span');
-            span.textContent = `Signed in as ${this.user.displayName || this.user.email}`;
+            span.textContent = `Signed in as ${this.user.email}`;
             span.style.fontSize = '13px';
             span.style.color = 'var(--muted)';
 
@@ -126,9 +127,13 @@ class BibleApp {
             btn.style.color = 'white';
             btn.style.fontWeight = 'bold';
             btn.onclick = () => {
-                signInWithRedirect(auth, provider).catch((error) => {
+                signInWithPopup(auth, provider).catch((error) => {
                     console.error("Auth Error:", error);
-                    alert("Login failed: " + error.message);
+                    if (error.code === 'auth/unauthorized-domain') {
+                        alert("Login failed: This domain is not authorized. Please visit the official site.");
+                    } else {
+                        alert("Login failed: " + error.message);
+                    }
                 });
             };
             authContainer.appendChild(btn);
