@@ -99,7 +99,7 @@ class BibleApp {
 
         if (this.user) {
             const span = document.createElement('span');
-            span.textContent = `Signed in as ${this.user.email}`;
+            span.textContent = `Signed in as ${this.user.displayName || this.user.email}`;
             span.style.fontSize = '13px';
             span.style.color = 'var(--muted)';
 
