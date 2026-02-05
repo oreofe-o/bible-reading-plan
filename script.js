@@ -107,8 +107,17 @@ class BibleApp {
         authContainer.innerHTML = '';
 
         if (this.user) {
+            // Debug: log available user data
+            console.log("User data:", {
+                displayName: this.user.displayName,
+                email: this.user.email,
+                photoURL: this.user.photoURL,
+                uid: this.user.uid
+            });
+
             const span = document.createElement('span');
-            span.textContent = `Signed in as ${this.user.displayName || this.user.email}`;
+            const displayName = this.user.displayName || this.user.email.split('@')[0];
+            span.textContent = `Signed in as ${displayName}`;
             span.style.fontSize = '13px';
             span.style.color = 'var(--muted)';
 
