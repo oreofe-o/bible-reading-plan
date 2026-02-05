@@ -4,7 +4,8 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChang
 
 const firebaseConfig = {
     apiKey: "AIzaSyBeJCtncp2ePYPwdQjWmD8tognJIiUnl40",
-    authDomain: "otf-bible-2026.firebaseapp.com",
+    // authDomain: "otf-bible-2026.firebaseapp.com",
+    authDomain: "luxury-gaufre-48f987.netlify.app",
     projectId: "otf-bible-2026",
     storageBucket: "otf-bible-2026.firebasestorage.app",
     messagingSenderId: "764497402440",
