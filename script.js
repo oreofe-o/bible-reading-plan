@@ -434,6 +434,3 @@ class BibleApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new BibleApp();
 });
-
-
-// and a website restriction in Cloud Console to https://oreofe-o.github.io/bible-reading-plan/*
