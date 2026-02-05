@@ -108,17 +108,7 @@ class BibleApp {
 
         if (this.user) {
             const span = document.createElement('span');
-            
-            // Get a friendly name: Display Name > First part of email > "User"
-            let displayName = this.user.displayName;
-            if (!displayName && this.user.email) {
-                const namePart = this.user.email.split('@')[0];
-                // Capitalize first letter
-                displayName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
-            }
-            if (!displayName) displayName = "User";
-
-            span.textContent = `Signed in as ${displayName}`;
+            span.textContent = `Signed in as ${this.user.displayName || this.user.email}`;
             span.style.fontSize = '13px';
             span.style.color = 'var(--muted)';
 
