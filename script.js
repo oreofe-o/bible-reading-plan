@@ -6,7 +6,6 @@ import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, sig
 const firebaseConfig = {
     apiKey: "AIzaSyBeJCtncp2ePYPwdQjWmD8tognJIiUnl40",
     authDomain: "otf-bible-2026.firebaseapp.com",
-    // authDomain: "luxury-gaufre-48f987.netlify.app",
     projectId: "otf-bible-2026",
     storageBucket: "otf-bible-2026.firebasestorage.app",
     messagingSenderId: "764497402440",
@@ -65,6 +64,15 @@ class BibleApp {
         this.renderBooks();
         this.renderAuthUI();
 
+        // Handle redirect result (after sign-in redirect)
+        getRedirectResult(auth).then((result) => {
+            if (result) {
+                console.log("Sign-in successful via redirect");
+            }
+        }).catch((error) => {
+            console.error("Redirect sign-in error:", error);
+        });
+
         // Listen for Auth Changes
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -117,13 +125,9 @@ class BibleApp {
             btn.style.color = 'white';
             btn.style.fontWeight = 'bold';
             btn.onclick = () => {
-                signInWithPopup(auth, provider).catch((error) => {
+                signInWithRedirect(auth, provider).catch((error) => {
                     console.error("Auth Error:", error);
-                    if (error.code === 'auth/unauthorized-domain') {
-                        alert("Login failed: This domain is not authorized. Please visit the official site.");
-                    } else {
-                        alert("Login failed: " + error.message);
-                    }
+                    alert("Login failed: " + error.message);
                 });
             };
             authContainer.appendChild(btn);
@@ -430,3 +434,6 @@ class BibleApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new BibleApp();
 });
+
+
+// and a website restriction in Cloud Console to https://oreofe-o.github.io/bible-reading-plan/*
