@@ -12,17 +12,6 @@ const firebaseConfig = {
     appId: "1:764497402440:web:b9517a6120aa3105c0967d"
 };
 
-
-const firebaseConfig = {
-    apiKey: "AIzaSyBeJCtncp2ePYPwdQjWmD8tognJIiUnl40",
-    // authDomain: "otf-bible-2026.firebaseapp.com",
-    authDomain: "luxury-gaufre-48f987.netlify.app",
-    projectId: "otf-bible-2026",
-    storageBucket: "otf-bible-2026.firebasestorage.app",
-    messagingSenderId: "764497402440",
-    appId: "1:764497402440:web:b9517a6120aa3105c0967d"
-};
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
